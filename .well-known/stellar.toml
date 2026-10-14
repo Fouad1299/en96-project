@@ -1,0 +1,12 @@
+[DOCUMENTATION]
+ORG_NAME = "EN96 Token"
+ORG_URL = "https://driceroland.github.io"
+ORG_LOGO = "https://driceroland.github.io/logo.png"
+
+[[CURRENCIES]]
+code = "EN96"
+issuer = "GBWLEH67H6HCH264IWJFL66CJYF34B7WEC4GSZQJZPDM23WVC6UKB7SJ"
+display_decimals = 7
+name = "EN96 Token"
+desc = "Digital cryptocurrency token EN96 on Stellar Network"
+image = "https://driceroland.github.io/logo.png"
