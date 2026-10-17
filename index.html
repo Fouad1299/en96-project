@@ -3,123 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تعدين عملة EN96 المستمر</title>
+    <title>EN96 Mining Bot - النظام العالمي المتكامل</title>
+    <script src="https://telegram.org"></script>
     <style>
-        body {
-            margin: 0; padding: 0;
-            background: radial-gradient(circle, #151515 0%, #050505 100%);
-            color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between;
-            min-height: 100vh; overflow: hidden;
+        :root {
+            --gold: #f39c12;
+            --gold-neon: 0 0 20px rgba(243, 156, 18, 0.6);
+            --bg: #0b0b0d;
+            --card: #141417;
         }
-        .header {
-            width: 90%; display: flex; justify-content: space-between;
-            align-items: center; margin-top: 15px; padding: 10px 15px;
-            background: rgba(255, 215, 0, 0.03);
-            border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 12px;
-        }
-        .user-name { font-weight: bold; color: #ffd700; font-size: 14px; }
-        .mining-status { font-size: 11px; color: #00ffcc; margin-top: 2px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: var(--bg); color: #fff; min-height: 100vh; padding-bottom: 80px; display: flex; flex-direction: column; align-items: center; }
         
-        .balance-container { text-align: center; margin-top: 15px; }
-        .balance-title { font-size: 13px; color: #bbb; }
-        .main-balance { font-size: 36px; font-weight: bold; color: #fff; margin: 2px 0; }
+        .header { width: 100%; max-width: 450px; padding: 20px; text-align: center; border-bottom: 1px solid rgba(243,156,18,0.1); }
+        .logo { font-size: 28px; font-weight: bold; color: var(--gold); text-shadow: var(--gold-neon); letter-spacing: 2px; }
         
-        .mining-section {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center; flex-grow: 1;
-        }
-        .coin-button {
-            width: 190px; height: 190px; border-radius: 50%;
-            background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
-            box-shadow: 0 0 35px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.5);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 34px; font-weight: bold; color: #000;
-            border: 4px solid #fff; cursor: pointer;
-            transition: transform 0.1s ease; user-select: none;
-        }
-        .coin-button:active { transform: scale(0.94); }
+        /* التبويبات */
+        .page { width: 100%; max-width: 400px; padding: 20px; display: none; }
+        .page.active { display: block; }
         
-        .live-counter {
-            margin-top: 15px; font-size: 22px; font-family: monospace;
-            color: #00ffcc; background: rgba(0, 0, 0, 0.5);
-            padding: 4px 14px; border-radius: 20px;
-            border: 1px solid rgba(0, 255, 210, 0.2);
-        }
+        /* كارت الرصيد والتعدين */
+        .balance-box { background: var(--card); border: 1px solid rgba(243,156,18,0.2); border-radius: 20px; padding: 25px; text-align: center; box-shadow: var(--gold-neon); margin-bottom: 30px; }
+        .balance-num { font-size: 40px; font-weight: bold; color: #fff; margin: 10px 0; font-variant-numeric: tabular-nums; }
         
-        .claim-btn {
-            width: 85%; padding: 14px;
-            background: linear-gradient(90deg, #ffd700 0%, #ffa500 100%);
-            border: none; border-radius: 25px; color: #000;
-            font-size: 16px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3);
-            margin-bottom: 25px;
-        }
+        .mining-circle { width: 180px; height: 180px; background: radial-gradient(circle, #222, #050505); border: 5px solid var(--gold); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 20px auto; cursor: pointer; box-shadow: var(--gold-neon); transition: transform 0.2s; }
+        .mining-circle:active { transform: scale(0.95); }
+        
+        /* بطاقات المهام والمحفظة */
+        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .btn { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-yt { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        
+        /* شريط التنقل السفلي */
+        .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background: #050507; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(243,156,18,0.15); border-radius: 20px 20px 0 0; }
+        .nav-item { background: none; border: none; color: #7f8c8d; display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 4px; }
+        .nav-item.active { color: var(--gold); }
+        .nav-icon { font-size: 20px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div>
-            <div class="user-name">المعدِّن المحترف</div>
-            <div class="mining-status" id="statusText">التعدين السحابي نشط دائمًا 🟢</div>
+        <div class="logo">EN96 ECOSYSTEM</div>
+    </div>
+
+    <!-- 1. صفحة التعدين الرئيسية -->
+    <div id="home-page" class="page active">
+        <div class="balance-box">
+            <p style="color: #aaa; font-size: 14px;">إجمالي رصيد EN96 المجمع</p>
+            <div class="balance-num" id="balanceDisplay">0.0165</div>
+            <p style="color: #2ecc71; font-size: 12px;">⚡ التعدين السحابي يعمل 24 ساعة دون توقف</p>
         </div>
-        <div style="color: #ffd700; font-weight: bold; font-size: 12px;">شبكة Stellar</div>
+        <div class="mining-circle" onclick="claimMining()">
+            <span style="font-size: 24px; font-weight: bold; color: #fff;">CLAIM</span>
+            <span style="color: #2ecc71; font-size: 12px; margin-top: 5px;">+0.0005/ثانية</span>
+        </div>
     </div>
 
-    <div class="balance-container">
-        <div class="balance-title">إجمالي رصيد EN96 المجمّع</div>
-        <div class="main-balance" id="totalBalance">0.0000</div>
+    <!-- 2. صفحة مشاهدة يوتيوب والمهام -->
+    <div id="tasks-page" class="page">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">📺 مهام يوتيوب والمجتمع</h3>
+        <div class="card">
+            <h4>اشترك وشاهد قناة EN96 الرسمية</h4>
+            <p style="font-size: 12px; color: #aaa; margin-top: 5px;">شاهد الفيديوهات لدعم مشروعك لمدة 60 ثانية للحصول على المكافأة.</p>
+            <p style="color: #2ecc71; font-weight: bold; margin-top: 5px;">🎁 الجائزة: +150 عملة EN96</p>
+            <button id="ytBtn" class="btn btn-yt" onclick="watchVideoTask('https://youtube.com', 60)">▶️ ابدأ المشاهدة والاشتراك</button>
+            <p id="timerText" style="display:none; color: var(--gold); margin-top: 10px; font-weight: bold; text-align: center;">⏳ انتظر: <span id="secs">60</span> ثانية...</p>
+        </div>
     </div>
 
-    <div class="mining-section">
-        <div class="coin-button" id="coinBtn">EN96</div>
-        <div class="live-counter" id="liveMiner">0.000000</div>
+    <!-- 3. صفحة الإحالات ودعوة الأصدقاء -->
+    <div id="friends-page" class="page">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">👥 مجتمع دعوة الأصدقاء</h3>
+        <div class="card">
+            <h4>انشر البوت واكسب المزيد!</h4>
+            <p style="font-size: 12px; color: #aaa; margin-top: 5px;">ستحصل على <span style="color: var(--gold); font-weight: bold;">+100 عملة EN96</span> عن كل صديق يقوم بالتسجيل من خلالك.</p>
+            <button class="btn" onclick="shareInviteLink()">🔗 مشاركة رابط الإحالة الخاص بك</button>
+        </div>
+        <div class="card">
+            <h4>إحصائيات إحالاتك الحالية</h4>
+            <p style="font-size: 14px;">عدد الأصدقاء الذين دعوتهم: <span id="refCount" style="color: var(--gold); font-weight: bold;">0</span> أصدقاء</p>
+        </div>
     </div>
 
-    <button class="claim-btn" id="claimBtn">CLAIM NOW</button>
+    <!-- 4. صفحة المحفظة والسحب -->
+    <div id="wallet-page" class="page">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">💼 نظام سحب عملة EN96 للمحافظات</h3>
+        <div class="card">
+            <h4>🔗 ربط محفظتك الشخصية (Stellar)</h4>
+            <p style="font-size: 11px; color: #aaa; margin: 5px 0 10px;">ضع هنا عنوان محفظتك العام من تطبيق LOBSTR (يبدأ بحرف G):</p>
+            <input type="text" id="userStellarWallet" placeholder="ادخل عنوان محفظتك G..." 
+                   style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(243,156,18,0.3); background: #000; color: #fff; text-align: left; font-size: 12px;">
+            <button class="btn" onclick="saveUserWallet()">💾 حفظ وتوثيق المحفظة</button>
+        </div>
+        <div class="card" style="margin-top: 20px;">
+            <h4>💰 سحب الأرباح الفوري</h4>
+            <p style="font-size: 12px; color: #aaa; margin-top: 5px;">الحد الأدنى للسحب هو: <span style="color: var(--gold); font-weight: bold;">100 EN96</span></p>
+            <button class="btn" style="background: linear-gradient(135deg, #2ecc71, #27ae60);" onclick="processCryptoWithdrawal()">🚀 سحب العملات إلى تطبيق LOBSTR</button>
+        </div>
+    </div>
+
+    <!-- شريط التنقل السفلي المتكامل -->
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="switchPage('home-page')">
+            <span class="nav-icon">⚡</span><span>التعدين</span>
+        </button>
+        <button class="nav-item" onclick="switchPage('tasks-page')">
+            <span class="nav-icon">📺</span><span>المهام</span>
+        </button>
+        <button class="nav-item" onclick="switchPage('friends-page')">
+            <span class="nav-icon">👥</span><span>الأصدقاء</span>
+        </button>
+        <button class="nav-item" onclick="switchPage('wallet-page')">
+            <span class="nav-icon">💼</span><span>المحفظة</span>
+        </button>
+    </nav>
 
     <script>
-        const miningSpeedPerSecond = 0.0005; 
+        const speed = 0.0005; 
+        const tg = window.Telegram?.WebApp;
+        if(tg) { tg.ready(); tg.expand(); }
 
-        let totalBalance = parseFloat(localStorage.getItem('en96_real_balance')) || 0.0000;
-        let lastClaimTime = parseInt(localStorage.getItem('en96_last_time')) || Date.now();
-        let currentMining = 0.000000;
+        let currentBalance = parseFloat(localStorage.getItem('en96_balance')) || 0.0165;
+        let lastSavedTime = parseInt(localStorage.getItem('en96_last_time'));
+        let referralCount = parseInt(localStorage.getItem('en96_ref_count')) || 0;
 
-        document.getElementById('totalBalance').innerText = totalBalance.toFixed(4);
-
-        function calculateOfflineMining() {
-            const now = Date.now();
-            const secondsPassed = Math.floor((now - lastClaimTime) / 1000);
-            currentMining = secondsPassed * miningSpeedPerSecond;
-            document.getElementById('liveMiner').innerText = currentMining.toFixed(6);
+        // ميزة التعدين السحابي المستمر عند الغياب
+        if (lastSavedTime) {
+            let currentTime = Math.floor(Date.now() / 1000);
+            let secondsPassed = currentTime - lastSavedTime;
+            if (secondsPassed > 0) {
+                currentBalance += (secondsPassed * speed);
+            }
         }
 
-        calculateOfflineMining();
+        document.getElementById("balanceDisplay").innerText = currentBalance.toFixed(4);
+        document.getElementById("refCount").innerText = referralCount;
 
+        // العداد الذكي الذي يعمل بدون توقف ويحفظ تلقائياً
         setInterval(() => {
-            currentMining += miningSpeedPerSecond;
-            document.getElementById('liveMiner').innerText = currentMining.toFixed(6);
+            currentBalance += speed;
+            document.getElementById("balanceDisplay").innerText = currentBalance.toFixed(4);
+            localStorage.setItem('en96_balance', currentBalance);
+            localStorage.setItem('en96_last_time', Math.floor(Date.now() / 1000));
         }, 1000);
 
-        document.getElementById('coinBtn').addEventListener('click', () => {
-            currentMining += 0.005;
-            document.getElementById('liveMiner').innerText = currentMining.toFixed(6);
-        });
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
 
-        document.getElementById('claimBtn').addEventListener('click', () => {
-            if (currentMining > 0) {
-                totalBalance += currentMining;
-                document.getElementById('totalBalance').innerText = totalBalance.toFixed(4);
-                lastClaimTime = Date.now();
-                localStorage.setItem('en96_real_balance', totalBalance);
-                localStorage.setItem('en96_last_time', lastClaimTime);
-                currentMining = 0.000000;
-                document.getElementById('liveMiner').innerText = currentMining.toFixed(6);
-                alert('تم جمع عملات EN96 بنجاح! التعدين مستمر الآن حتى لو أغلقت هاتفك.');
-            }
-        });
-    </script>
-</body>
-</html>
+        function claimMining() {
+            if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            localStorage.setItem('en96_balance', currentBalance);
+            localStorage.setItem('en96_last_time', Math.floor(Date.now() / 1000));
+            alert("✨ تم تأمين وحفظ رصيدك المستمر بنجاح!");
+        }
+
+        function watchVideoTask(url, seconds) {
+            if(tg) { tg.openLink(url); } else { window.open(url, '_blank'); }
+            const btn = document.getElementById("ytBtn");
+            const text = document.getElementById("timerText");
+            const secs = document.getElementById("secs");
+            btn.disabled = true; btn.style.opacity = 0.5; text.style.display = "block";
+            let left = seconds;
+            const timer = setInterval(() => {
+                left--; secs.innerText = left;
+                if(left <= 0) {
+                    clearInterval(timer); text.style.display = "none";
+
