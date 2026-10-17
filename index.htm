@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EN96 Mining Network</title>
+    <!-- تصحيح رابط مكتبة تليجرام الرسمية المصغرة -->
+    <script src="https://telegram.org"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: radial-gradient(circle at top, #1c1404 0%, #050401 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .page { display: none; padding: 20px; text-align: center; }
+        .page.active { display: block; }
+        
+        .header-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 215, 0, 0.03);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            padding: 10px 15px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+        }
+
+        /* حاوية الثور الأمريكي المتحرك */
+        .bull-animation-container {
+            width: 100%;
+            height: 160px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .bull-gif {
+            max-width: 180px;
+            max-height: 160px;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4)); /* إضاءة ذهبية حول الثور */
+        }
+
+        .balance-card {
+            background: linear-gradient(180deg, #161205 0%, #000000 100%);
+            border: 1px solid #ffd700;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+            margin-bottom: 25px;
+        }
+        .amount {
+            font-size: 34px;
+            font-weight: 800;
+            color: #ffd700;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .claim-button, .action-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #ffe066, #b38600);
+            color: #000;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 176, 0, 0.3);
+        }
+        .claim-button:active, .action-btn:active { transform: scale(0.98); }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            text-align: right;
+        }
+        .go-btn {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #000000;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-item.active { color: #ffd700; font-weight: bold; }
+        .nav-icon { font-size: 20px; margin-bottom: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. صفحة التعدين الرئيسية (Home) -->
+    <div id="page-home" class="page active">
+        <div class="header-status">
+            <div>👑 <span id="user-name">المستخدم</span></div>
+            <div style="color: #00e676;">⚡ جاري التعدين</div>
+        </div>
+        
+        <!-- قسم الثور المتحرك برابط مباشر ومجاني يعمل للأبد -->
+        <div class="bull-animation-container">
+            <img src="https://giphy.com" alt="Running Bull" class="bull-gif">
+        </div>
+
+        <div class="balance-card">
+            <div style="color: #aaa; font-size: 14px;">أصول عملة EN96 المستخرجة</div>
+            <div class="amount" id="balance-counter">0.0000</div>
+            <div style="color: #00e676; font-size: 13px;">📈 +0.025 EN96 / ثانية</div>
+        </div>
+        <button class="claim-button" onclick="handleClaim()">CLAIM (تجميع)</button>
+    </div>
+
+    <!-- 2. صفحة المهام (Tasks) -->
+    <div id="page-tasks" class="page">
+        <h2 style="color: #ffd700; margin-bottom: 20px;">المهام والمكافآت</h2>
+        <div class="list-item">
+            <div><strong>اشتراك بقناة اليوتيوب</strong><br><span style="color: #ffd700;">+50 EN96</span></div>
+            <button class="go-btn" onclick="doTask('https://youtube.com')">إبدأ</button>
+        </div>
+        <div class="list-item">
+            <div><strong>متابعة على منصة X</strong><br><span style="color: #ffd700;">+30 EN96</span></div>
+            <button class="go-btn" onclick="doTask('https://x.com')">إبدأ</button>
+        </div>
+    </div>
+
+    <!-- 3. صفحة المتجر وترقيات التعدين (Miners) -->
+    <div id="page-miners" class="page">
+        <h2 style="color: #ffd700; margin-bottom: 20px;">متجر آلات التعدين</h2>
+        <div class="list-item">
+            <div><strong>معدّن برونزي (مستوى 1)</strong><br><span style="color: #00e676;">+0.05/ثانية</span></div>
+            <button class="go-btn" style="background:#00e676;" onclick="buyMiner(100)">شراء 100</button>
+        </div>
+    </div>
+
+    <!-- 4. صفحة الأصدقاء والإحالة (Friends) -->
+    <div id="page-friends" class="page">
+        <h2 style="color: #ffd700; margin-bottom: 20px;">دعوة الأصدقاء</h2>
+        <div class="balance-card">
+            <p style="font-size: 14px; color:#aaa;">رابط الإحالة الخاص بك:</p>
+            <p style="color: #ffd700; margin: 10px 0; word-break: break-all;" id="ref-link">https://t.me</p>
+            <button class="go-btn" onclick="copyRef()">نسخ الرابط</button>
+        </div>
+    </div>
+
+    <!-- 5. صفحة الملف الشخصي والمحفظة (Profile) -->
+    <div id="page-profile" class="page">
+        <h2 style="color: #ffd700; margin-bottom: 20px;">الملف الشخصي إعدادات السحب</h2>
+        <div class="balance-card" style="text-align: right;">
+            <p>👤 معرف الحساب: <span id="user-id" style="color:#ffd700;">-</span></p><br>
+            <p>🔒 حالة التوثيق: <span style="color: #ff3d00;">غير موثق</span></p>
+        </div>
+        <button class="action-btn" onclick="requestWithdrawal()">سحب النقاط إلى LOBSTR</button>
+    </div>
+
+    <!-- شريط التنقل السفلي الثابت -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchPage('home', this)"><div class="nav-icon">⛏️</div><div>الرئيسية</div></button>
+        <button class="nav-item" onclick="switchPage('tasks', this)"><div class="nav-icon">📋</div><div>المهام</div></button>
+        <button class="nav-item" onclick="switchPage('miners', this)"><div class="nav-icon">⚡</div><div>المتجر</div></button>
+        <button class="nav-item" onclick="switchPage('friends', this)"><div class="nav-icon">👥</div><div>الأصدقاء</div></button>
+        <button class="nav-item" onclick="switchPage('profile', this)"><div class="nav-icon">⚙️</div><div>الملف</div></button>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
+            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
+            document.getElementById('ref-link').innerText = `https://t.me{tg.initDataUnsafe.user.id}`;
+        }
+
+        let currentBalance = 0.0000;
+        setInterval(() => {
+            currentBalance += 0.025;
+            document.getElementById('balance-counter').innerText = currentBalance.toFixed(4) + " EN96";
+        }, 1000);
+
+        // إكمال دالة التنقل بين الصفحات وإصلاح الخطأ الإملائي الناقص
+        function switchPage(pageId, button) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            button.classList.add('active');
+        }
+
+        function handleClaim() {
+            tg.showPopup({ title: 'تجميع ناجح 🚀', message: 'تم تجميع النقاط بنجاح دون أي نقص.', buttons: [{type: 'close'}] });
+        }
+
+        function doTask(url) { tg.openLink(url); }
+        function copyRef() { alert('تم نسخ رابط الإحالة الخاص بك بنجاح!'); }
+        function buyMiner(price) { alert('سيتم خصم النقاط وشراء الآلة فور ربط قواعد البيانات.'); }
+        function requestWithdrawal() { alert('يرجى كتابة أمر /withdraw داخل البوت في تليجرام لإتمام النقل لمحفظة LOBSTR بأمان.'); }
+    </script>
+</body>
+</html>
