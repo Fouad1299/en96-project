@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EN96 Mining Bot - النظام العالمي المتكامل</title>
+    <script src="https://telegram.org"></script>
+    <style>
+        :root {
+            --gold: #f39c12;
+            --gold-neon: 0 0 20px rgba(243, 156, 18, 0.6);
+            --bg: #0b0b0d;
+            --card: #141417;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: var(--bg); color: #fff; min-height: 100vh; padding-bottom: 80px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 450px; padding: 20px; text-align: center; border-bottom: 1px solid rgba(243,156,18,0.1); }
+        .logo { font-size: 28px; font-weight: bold; color: var(--gold); text-shadow: var(--gold-neon); letter-spacing: 2px; }
+        .page { width: 100%; max-width: 400px; padding: 20px; display: none; }
+        .page.active { display: block; }
+        .balance-box { background: var(--card); border: 1px solid rgba(243,156,18,0.2); border-radius: 20px; padding: 25px; text-align: center; box-shadow: var(--gold-neon); margin-bottom: 30px; }
+        .balance-num { font-size: 40px; font-weight: bold; color: #fff; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        .mining-circle { width: 180px; height: 180px; background: radial-gradient(circle, #222, #050505); border: 5px solid var(--gold); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 20px auto; cursor: pointer; box-shadow: var(--gold-neon); transition: transform 0.2s; }
+        .mining-circle:active { transform: scale(0.95); }
+        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .btn { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-yt { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background: #050507; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(243,156,18,0.15); border-radius: 20px 20px 0 0; }
+        .nav-item { background: none; border: none; color: #7f8c8d; display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 4px; }
+        .nav-item.active { color: var(--gold); }
+        .nav-icon { font-size: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">EN96 ECOSYSTEM</div>
+    </div>
+
+    <!-- 1. صفحة التعدين الرئيسية -->
+    <div id="home-page" class="page active">
+        <div class="balance-box">
+            <p style="color: #aaa; font-size: 14px;">إجمالي رصيد EN96 المجمع</p>
+            <div class="balance-num" id="balanceDisplay">0.0165</div>
+            <p style="color: #2ecc71; font-size: 12px;">⚡ التعدين السحابي يعمل 24 ساعة دون توقف</p>
+        </div>
+        <div class="mining-circle" onclick="claimMining()">
+            <span style="font-size: 24px; font-weight: bold; color: #fff;">CLAIM</span>
+            <span style="color: #2ecc71; font-size: 12px; margin-top: 5px;">+0.0005/ثانية</span>
+        </div>
+    </div>
+
+    <!-- 2. صفحة مشاهدة يوتيوب والمهام -->
+    <div id="tasks-page" class="page">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">📺 مهام يوتيوب والمجتمع</h3>
+        <div class="card">
+            <h4>اشترك وشاهد قناة EN96 الرسمية</h4>
+            <p style="font-size: 12px; color: #aaa; margin-top: 5px;">شاهد الفيديوهات لدعم مشروعك لمدة 60 ثانية للحصول على المكافأة.</p>
+            <p style="color: #2ecc71; font-weight: bold; margin-top: 5px;">🎁 الجائزة: +150 عملة EN96</p>
+            <button id="ytBtn" class="btn btn-yt" onclick="watchVideoTask('https://youtube.com', 60)">▶️ ابدأ المشاهدة والاشتراك</button>
+            <p id="timerText" style="display:none; color: var(--gold); margin-top: 10px; font-weight: bold; text-align: center;">⏳ انتظر: <span id="secs">60</span> ثانية...</p>
+        </div>
+    </div>
+
+    <!-- 3. صفحة الإحالات ودعوة الأصدقاء -->
+    <div id="friends-page" class="page">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">👥 مجتمع دعوة الأصدقاء</h3>
+        <div class="card">
+            <h4>انشر البوت واكسب المزيد!</h4>
+            <p style="font-size: 12px; color: #aaa; margin-top: 5px;">ستحصل على <span style="color: var(--gold); font-weight: bold;">+100 عملة EN96</span> عن كل صديق يقوم بالتسجيل من خلالك.</p>
+            <button class="btn" onclick="shareInviteLink()">🔗 مشاركة رابط الإحالة الخاص بك</button>
+        </div>
+        <div class="card">
+            <h4>إحصائيات إحالاتك الحالية</h4>
+            <p style="font-size: 14px;">عدد الأصدقاء الذين دعوتهم: <span id="refCount" style="color: var(--gold); font-weight: bold;">0</span> أصدقاء</p>
+        </div>
+    </div>
+
+    <!-- 4. صفحة المحفظة والسحب -->
+    <div id="wallet-page" class="page">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">💼 نظام سحب عملة EN96 للمحافظ</h3>
+        <div class="card">
+            <h4>🔗 ربط محفظتك الشخصية (Stellar)</h4>
+            <p style="font-size: 11px; color: #aaa; margin: 5px 0 10px;">ضع هنا عنوان محفظتك العام من تطبيق LOBSTR (يبدأ بحرف G):</p>
+            <input type="text" id="userStellarWallet" placeholder="ادخل عنوان محفظتك G..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(243,156,18,0.3); background: #000; color: #fff; text-align: left; font-size: 12px;">
+            <button class="btn" onclick="saveUserWallet()">💾 حفظ وتوثيق المحفظة</button>
+        </div>
+        <div class="card" style="margin-top: 20px;">
+            <h4>💰 سحب الأرباح الفوري</h4>
+            <p style="font-size: 12px; color: #aaa; margin-top: 5px;">الحد الأدنى للسحب هو: <span style="color: var(--gold); font-weight: bold;">100 EN96</span></p>
+            <button class="btn" style="background: linear-gradient(135deg, #2ecc71, #27ae60);" onclick="processCryptoWithdrawal()">🚀 سحب العملات إلى تطبيق LOBSTR</button>
+        </div>
+    </div>
+
+    <!-- شريط التنقل السفلي المتكامل -->
+    <nav class="nav-bar">
+        <button id="nav-home-page" class="nav-item active" onclick="switchPage('home-page')">
+            <span class="nav-icon">⚡</span><span>التعدين</span>
+        </button>
+        <button id="nav-tasks-page" class="nav-item" onclick="switchPage('tasks-page')">
+            <span class="nav-icon">📺</span><span>المهام</span>
+        </button>
+        <button id="nav-friends-page" class="nav-item" onclick="switchPage('friends-page')">
+            <span class="nav-icon">👥</span><span>الأصدقاء</span>
+        </button>
+        <button id="nav-wallet-page" class="nav-item" onclick="switchPage('wallet-page')">
+            <span class="nav-icon">💼</span><span>المحفظة</span>
+        </button>
+    </nav>
+
+<script>
+    const speed = 0.0005;
+    const tg = window.Telegram?.WebApp;
+    
+    if(tg) {
+        tg.ready();
+        tg.expand();
+    }
+
+    let currentBalance = parseFloat(localStorage.getItem('en96_balance')) || 0.0165;
+    let lastSavedTime = parseInt(localStorage.getItem('en96_last_time'));
+    let referralCount = parseInt(localStorage.getItem('en96_ref_count')) || 0;
+
+    if (lastSavedTime) {
+        let currentTime = Math.floor(Date.now() / 1000);
+        let secondsPassed = currentTime - lastSavedTime;
+        if (secondsPassed > 0) {
+            currentBalance += (secondsPassed * speed);
+        }
+    }
+
+    document.getElementById("balanceDisplay").innerText = currentBalance.toFixed(4);
+    document.getElementById("refCount").innerText = referralCount;
+    
+    if(localStorage.getItem('user_stellar_wallet')) {
+        document.getElementById("userStellarWallet").value = localStorage.getItem('user_stellar_wallet');
+    }
+
+    // تشغيل العداد التلقائي كل ثانية وتحديث الشاشة فوراً
+    setInterval(() => {
+        currentBalance += speed;
+        const display = document.getElementById("balanceDisplay");
+        if(display) {
+            display.innerText = currentBalance.toFixed(4);
+        }
+        localStorage.setItem('en96_balance', currentBalance);
+        localStorage.setItem('en96_last_time', Math.floor(Date.now() / 1000));
+    }, 1000);
+
+    function switchPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        
+        document.getElementById(pageId).classList.add('active');
+        document.getElementById('nav-' + pageId).classList.add('active');
+        
+        if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+    }
+
+    function claimMining() {
+        if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        localStorage.setItem('en96_balance', currentBalance);
+        localStorage.setItem('en96_last_time', Math.floor(Date.now() / 1000));
+        alert("✨ تم تأمين وحفظ رصيدك المستمر بنجاح!");
+    }
+
+    function watchVideoTask(url, seconds) {
+        if(tg) {
+            tg.openLink(url);
+        } else {
+            window.open(url, '_blank');
+        }
+        
+        const btn = document.getElementById("ytBtn");
+        const text = document.getElementById("timerText");
+        const secs = document.getElementById("secs");
+        
+        btn.disabled = true;
+        btn.style.opacity = 0.5;
+        text.style.display = "block";
+        
+        let left = seconds;
+        const timer = setInterval(() => {
+            left--;
+            secs.innerText = left;
+            if(left <= 0) {
+                clearInterval(timer);
+
